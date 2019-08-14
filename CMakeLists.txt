@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(PROJECT_NAME "cmake_boost")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project(${PROJECT_NAME})
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-rtti")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
+
+find_package(Threads REQUIRED)
+
+include("external/boost.cmake")
+find_package(Boost
+  1.70.0
+  COMPONENTS system thread
+)
+
+file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+
+add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
+add_dependencies(${PROJECT_NAME} boost)
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/external/include")
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${Boost_LIBRARIES})
